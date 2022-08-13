@@ -23,6 +23,8 @@ func main() {
 	if client {
 		done := make(chan struct{})
 		go func() {
+			defer close(done)
+
 			c := ggrok.NewClient()
 			c.Start()
 		}()
