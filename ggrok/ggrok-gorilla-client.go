@@ -3,7 +3,6 @@ package ggrok
 import (
 	"bufio"
 	"bytes"
-	"encoding/json"
 	"flag"
 	"io"
 	"log"
@@ -47,48 +46,16 @@ func (ggclient *GGrokClient) Start() {
 	go func() {
 		defer close(done)
 		for {
-			_, message, err := c.ReadMessage()
-			if err != nil {
-				log.Println("read message error:", err)
-				continue
-			}
-			log.Printf("recv: %s", message)
+			websocketReq := readWebSocketReq(c)
 
-			var websocketReq WebSocketRequest
-			if err := json.Unmarshal(message, &websocketReq); err != nil {
-				log.Println("json.Unmarshal error", err)
-				continue
-			}
-
-			var localRequest *http.Request
-			r := bufio.NewReader(bytes.NewReader([]byte(websocketReq.Req)))
-			if localRequest, err = http.ReadRequest(r); err != nil { // deserialize request
-				log.Println("deserialize request error", err)
-				continue
-			}
-
-			//TODO: change to config
-			localRequest.RequestURI = ""
-			u, err := url.Parse("/ada08e16-2112-4720-8fcb-18f2f8e47c2d")
-			if err != nil {
-				log.Println("parse url error", err)
-			}
-			localRequest.URL = u
-			localRequest.URL.Scheme = "https"
-			localRequest.URL.Host = "webhook.site"
+			localRequest := socketToLocalRequest(websocketReq)
 			resp, err := (&http.Client{}).Do(localRequest)
 			if err != nil {
 				log.Println("local http request error:", err)
 				continue
 			}
 
-			body, err := io.ReadAll(resp.Body)
-			if err != nil {
-				log.Println("read local response error ", err)
-			}
-			resp.Body.Close()
-			wsRes := WebSocketResponse{Status: resp.Status, StatusCode: resp.StatusCode,
-				Proto: resp.Proto, Header: resp.Header, Body: body, ContentType: resp.Header.Get("Content-Type")}
+			wsRes := localResponseToWebSocketResponse(resp)
 
 			log.Printf("client send response: %s \n", wsRes.Body)
 			c.WriteJSON(wsRes)
@@ -116,4 +83,47 @@ func (ggclient *GGrokClient) Start() {
 			return
 		}
 	}
+}
+
+func localResponseToWebSocketResponse(resp *http.Response) WebSocketResponse {
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Println("read local response error ", err)
+	}
+	resp.Body.Close()
+	wsRes := WebSocketResponse{Status: resp.Status, StatusCode: resp.StatusCode,
+		Proto: resp.Proto, Header: resp.Header, Body: body, ContentType: resp.Header.Get("Content-Type")}
+	return wsRes
+}
+
+func readWebSocketReq(c *websocket.Conn) WebSocketRequest {
+	var websocketReq WebSocketRequest
+	if err := c.ReadJSON(&websocketReq); err != nil {
+		log.Println("json.Unmarshal error", err)
+		return websocketReq
+	}
+	log.Printf("recv: %s", websocketReq)
+
+	return websocketReq
+}
+
+// deserialize request
+//TODO: change to config
+func socketToLocalRequest(websocketReq WebSocketRequest) *http.Request {
+	r := bufio.NewReader(bytes.NewReader([]byte(websocketReq.Req)))
+	localRequest, err := http.ReadRequest(r)
+	if err != nil {
+		log.Println("deserialize request error", err)
+		return localRequest
+	}
+
+	localRequest.RequestURI = ""
+	u, err := url.Parse("/ada08e16-2112-4720-8fcb-18f2f8e47c2d")
+	if err != nil {
+		log.Println("parse url error", err)
+	}
+	localRequest.URL = u
+	localRequest.URL.Scheme = "https"
+	localRequest.URL.Host = "webhook.site"
+	return localRequest
 }
