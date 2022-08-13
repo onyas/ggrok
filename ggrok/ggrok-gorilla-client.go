@@ -1,4 +1,4 @@
-package main
+package ggrok
 
 import (
 	"bufio"
@@ -8,7 +8,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"os"
 	"os/signal"
@@ -19,20 +18,14 @@ import (
 
 var addr = flag.String("addr", "localhost:8080", "http service address")
 
-func captureResponseData(resp *http.Response) (string, error) {
-	rump, err := httputil.DumpResponse(resp, true)
-	if err != nil {
-		log.Printf("local response dump error ", err)
-		return "", err
-	}
-	return string(rump), nil
+type GGrokClient struct {
 }
 
-func main() {
-	type RemoteRequest struct {
-		Req string
-		URL string
-	}
+func NewClient() *GGrokClient {
+	return &GGrokClient{}
+}
+
+func (ggclient *GGrokClient) Start() {
 
 	flag.Parse()
 	log.SetFlags(0)
@@ -61,7 +54,7 @@ func main() {
 			}
 			log.Printf("recv: %s", message)
 
-			var websocketReq RemoteRequest
+			var websocketReq WebSocketRequest
 			if err := json.Unmarshal(message, &websocketReq); err != nil {
 				log.Println("json.Unmarshal error", err)
 				continue
@@ -70,7 +63,7 @@ func main() {
 			var localRequest *http.Request
 			r := bufio.NewReader(bytes.NewReader([]byte(websocketReq.Req)))
 			if localRequest, err = http.ReadRequest(r); err != nil { // deserialize request
-				log.Printf("deserialize request error", err)
+				log.Println("deserialize request error", err)
 				continue
 			}
 
@@ -78,7 +71,7 @@ func main() {
 			localRequest.RequestURI = ""
 			u, err := url.Parse("/ada08e16-2112-4720-8fcb-18f2f8e47c2d")
 			if err != nil {
-				log.Printf("parse url error", err)
+				log.Println("parse url error", err)
 			}
 			localRequest.URL = u
 			localRequest.URL.Scheme = "https"
@@ -89,27 +82,15 @@ func main() {
 				continue
 			}
 
-			respStr, err := captureResponseData(resp)
-			if err != nil {
-				continue
-			}
-
-			type WebSocketResponse struct {
-				Status      string // e.g. "200 OK"
-				StatusCode  int    // e.g. 200
-				Proto       string // e.g. "HTTP/1.0"
-				Header      map[string][]string
-				Body        []byte
-				ContentType string
-			}
 			body, err := io.ReadAll(resp.Body)
 			if err != nil {
 				log.Println("read local response error ", err)
 			}
+			resp.Body.Close()
 			wsRes := WebSocketResponse{Status: resp.Status, StatusCode: resp.StatusCode,
 				Proto: resp.Proto, Header: resp.Header, Body: body, ContentType: resp.Header.Get("Content-Type")}
 
-			log.Println("client send response: %s", respStr)
+			log.Printf("client send response: %s \n", wsRes.Body)
 			c.WriteJSON(wsRes)
 		}
 	}()
