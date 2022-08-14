@@ -3,7 +3,6 @@ package core
 import (
 	"bufio"
 	"bytes"
-	"flag"
 	"io"
 	"log"
 	"net/http"
@@ -16,24 +15,20 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var addr = flag.String("addr", "localhost:5000", "http service address")
-
 type GGrokClient struct {
+	RemoteServer   string
+	ProxyLocalPort int
 }
 
-func NewClient() *GGrokClient {
-	return &GGrokClient{}
+func NewClient(s string, p int) *GGrokClient {
+	return &GGrokClient{RemoteServer: s, ProxyLocalPort: p}
 }
 
-func (ggclient *GGrokClient) Start(port int) {
-
-	flag.Parse()
-	log.SetFlags(0)
-
+func (ggclient *GGrokClient) Start() {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
-	u := url.URL{Scheme: "ws", Host: *addr, Path: "/$$ggrok"}
+	u := url.URL{Scheme: "ws", Host: ggclient.RemoteServer, Path: "/$$ggrok"}
 	log.Printf("connecting to %s", u.String())
 
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
@@ -49,7 +44,7 @@ func (ggclient *GGrokClient) Start(port int) {
 		for {
 			websocketReq := readWebSocketReq(c)
 
-			localRequest := socketToLocalRequest(websocketReq, port)
+			localRequest := socketToLocalRequest(websocketReq, ggclient.ProxyLocalPort)
 			resp, err := (&http.Client{}).Do(localRequest)
 			if err != nil {
 				log.Println("local http request error:", err)
