@@ -58,7 +58,7 @@ func (ggclient *GGrokClient) Start(port int) {
 
 			wsRes := localResponseToWebSocketResponse(resp)
 
-			log.Printf("client send response: %s \n", wsRes.Body)
+			// log.Printf("client send response: %s \n", wsRes.Body)
 			c.WriteJSON(wsRes)
 		}
 	}()
