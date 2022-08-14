@@ -41,6 +41,6 @@ func main() {
 
 	http.HandleFunc("/$$ggrok", s.Register)
 	http.HandleFunc("/", s.Proxy)
-	log.Println("Server started")
-	log.Fatal(http.ListenAndServe("localhost:"+string(port), nil))
+	log.Println("Server started at port:", port)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
