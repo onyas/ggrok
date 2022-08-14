@@ -19,12 +19,6 @@ func main() {
 	flag.Parse()
 	log.SetFlags(0)
 
-	port := os.Getenv("PORT")
-
-	if port == "" {
-		log.Fatal("$PORT must be set")
-	}
-
 	if client {
 		done := make(chan struct{})
 		go func() {
@@ -37,6 +31,10 @@ func main() {
 		<-done
 	}
 
+	port := os.Getenv("PORT")
+	if port == "" {
+		log.Fatal("$PORT must be set")
+	}
 	s := core.NewServer()
 
 	http.HandleFunc("/$$ggrok", s.Register)

@@ -1,23 +1,23 @@
 ## Usage
 
-```
-go run main.go
-
-go run main.go -client
-```
-
-request http://localhost:8080/ through postman
-
-
+## Debug stage
 
 [Data Race Detector](https://go.dev/doc/articles/race_detector)
-
 ```
 go run -race main.go
 
 go run -race main.go -client
 ```
+request http://localhost:8080/ through postman
 
+## Development with Heroku locally
+```
+//start server locally
+heroku local -f Procfile.local
+
+//start client locally
+go run main.go -client
+```
 
 ## Deploy to Heroku
 
@@ -29,4 +29,7 @@ heroku create
 git push heroku main
 //open you app in browser
 heroku open
+
+//check logs
+heroku logs --tail
 ```
