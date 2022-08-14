@@ -26,7 +26,7 @@ func main() {
 			defer close(done)
 
 			c := ggrok.NewClient()
-			c.Start()
+			c.Start(3000)
 		}()
 
 		<-done

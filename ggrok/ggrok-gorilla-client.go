@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -24,7 +25,7 @@ func NewClient() *GGrokClient {
 	return &GGrokClient{}
 }
 
-func (ggclient *GGrokClient) Start() {
+func (ggclient *GGrokClient) Start(port int) {
 
 	flag.Parse()
 	log.SetFlags(0)
@@ -48,7 +49,7 @@ func (ggclient *GGrokClient) Start() {
 		for {
 			websocketReq := readWebSocketReq(c)
 
-			localRequest := socketToLocalRequest(websocketReq)
+			localRequest := socketToLocalRequest(websocketReq, port)
 			resp, err := (&http.Client{}).Do(localRequest)
 			if err != nil {
 				log.Println("local http request error:", err)
@@ -109,7 +110,7 @@ func readWebSocketReq(c *websocket.Conn) WebSocketRequest {
 
 // deserialize request
 //TODO: change to config
-func socketToLocalRequest(websocketReq WebSocketRequest) *http.Request {
+func socketToLocalRequest(websocketReq WebSocketRequest, port int) *http.Request {
 	r := bufio.NewReader(bytes.NewReader([]byte(websocketReq.Req)))
 	localRequest, err := http.ReadRequest(r)
 	if err != nil {
@@ -118,12 +119,12 @@ func socketToLocalRequest(websocketReq WebSocketRequest) *http.Request {
 	}
 
 	localRequest.RequestURI = ""
-	u, err := url.Parse("/ada08e16-2112-4720-8fcb-18f2f8e47c2d")
+	u, err := url.Parse(websocketReq.URL)
 	if err != nil {
 		log.Println("parse url error", err)
 	}
 	localRequest.URL = u
-	localRequest.URL.Scheme = "https"
-	localRequest.URL.Host = "webhook.site"
+	localRequest.URL.Scheme = "http"
+	localRequest.URL.Host = "localhost:" + strconv.Itoa(port)
 	return localRequest
 }
