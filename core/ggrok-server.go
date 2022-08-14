@@ -55,10 +55,10 @@ func (s *Server) Proxy(w http.ResponseWriter, r *http.Request) {
 
 	wsRes := triggerWS(remoteConn, wsRequest)
 
-	wsResToHttpResponse(w, wsRes, r.Host)
+	wsResToHttpResponse(w, wsRes)
 }
 
-func copyHeader(dst http.ResponseWriter, src WebSocketResponse, host string) {
+func copyHeader(dst http.ResponseWriter, src WebSocketResponse) {
 	for k, vv := range src.Header {
 		for _, v := range vv {
 			dst.Header().Add(k, v)
@@ -66,11 +66,10 @@ func copyHeader(dst http.ResponseWriter, src WebSocketResponse, host string) {
 	}
 	dst.WriteHeader(src.StatusCode)
 	dst.Header().Set("Content-Type", src.ContentType)
-	dst.Header().Set("Host", host)
 }
 
-func wsResToHttpResponse(w http.ResponseWriter, wsRes WebSocketResponse, host string) {
-	copyHeader(w, wsRes, host)
+func wsResToHttpResponse(w http.ResponseWriter, wsRes WebSocketResponse) {
+	copyHeader(w, wsRes)
 	io.Copy(w, bytes.NewReader(wsRes.Body))
 }
 
