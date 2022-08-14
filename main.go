@@ -4,21 +4,26 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/onyas/ggrok/core"
 )
 
-var addr string
 var client bool
 
 func init() {
-	flag.StringVar(&addr, "serverAddr", "localhost:8080", "http service address")
 	flag.BoolVar(&client, "client", false, "start client")
 }
 
 func main() {
 	flag.Parse()
 	log.SetFlags(0)
+
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		log.Fatal("$PORT must be set")
+	}
 
 	if client {
 		done := make(chan struct{})
@@ -36,5 +41,6 @@ func main() {
 
 	http.HandleFunc("/$$ggrok", s.Register)
 	http.HandleFunc("/", s.Proxy)
-	log.Fatal(http.ListenAndServe(addr, nil))
+	log.Println("Server started")
+	log.Fatal(http.ListenAndServe("localhost:"+string(port), nil))
 }

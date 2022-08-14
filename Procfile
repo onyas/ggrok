@@ -1,0 +1,1 @@
+web: go build -o ggrok main.go && ./ggrok
