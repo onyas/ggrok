@@ -1,4 +1,7 @@
 ## Usage
+go run main.go -client -proxyServer https://yourProxyServer.com
+go run main.go -client -port 3000
+
 
 ## Debug stage
 
