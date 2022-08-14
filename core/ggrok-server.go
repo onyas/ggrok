@@ -1,4 +1,4 @@
-package ggrok
+package core
 
 import (
 	"bytes"

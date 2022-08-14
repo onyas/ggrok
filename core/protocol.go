@@ -1,4 +1,4 @@
-package ggrok
+package core
 
 type WebSocketRequest struct {
 	Req string

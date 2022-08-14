@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/onyas/ggrok/ggrok"
+	"github.com/onyas/ggrok/core"
 )
 
 var addr string
@@ -25,14 +25,14 @@ func main() {
 		go func() {
 			defer close(done)
 
-			c := ggrok.NewClient()
+			c := core.NewClient()
 			c.Start(3000)
 		}()
 
 		<-done
 	}
 
-	s := ggrok.NewServer()
+	s := core.NewServer()
 
 	http.HandleFunc("/$$ggrok", s.Register)
 	http.HandleFunc("/", s.Proxy)
