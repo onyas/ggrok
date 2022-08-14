@@ -69,8 +69,8 @@ func copyHeader(dst http.ResponseWriter, src WebSocketResponse, host string) {
 	dst.Header().Set("Host", host)
 }
 
-func wsResToHttpResponse(w http.ResponseWriter, wsRes WebSocketResponse) {
-	copyHeader(w, wsRes)
+func wsResToHttpResponse(w http.ResponseWriter, wsRes WebSocketResponse, host string) {
+	copyHeader(w, wsRes, host)
 	io.Copy(w, bytes.NewReader(wsRes.Body))
 }
 
