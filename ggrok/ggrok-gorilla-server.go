@@ -5,11 +5,17 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
 
-var connections = make(map[string]*websocket.Conn)
+type Connection struct {
+	Socket *websocket.Conn
+	mu     sync.Mutex
+}
+
+var connections = make(map[string]*Connection)
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
@@ -30,8 +36,11 @@ func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 		log.Print("upgrade:", err)
 		return
 	}
-
-	connections[r.Host] = c
+	gconn := &Connection{
+		Socket: c,
+		mu:     sync.Mutex{},
+	}
+	connections[r.Host] = gconn
 	log.Println("current connections: ", connections)
 }
 
@@ -47,10 +56,12 @@ func copyHeader(dst http.ResponseWriter, src WebSocketResponse) {
 
 func (s *Server) Proxy(w http.ResponseWriter, r *http.Request) {
 	remoteConn := connections[r.Host]
-	if remoteConn == nil {
+	if remoteConn == nil || remoteConn.Socket == nil {
 		io.WriteString(w, "client not register")
 		return
 	}
+	remoteConn.mu.Lock()
+	defer remoteConn.mu.Unlock()
 
 	reqStr, err := captureRequestData(r)
 	if err != nil {
@@ -60,10 +71,10 @@ func (s *Server) Proxy(w http.ResponseWriter, r *http.Request) {
 
 	reqRemote := WebSocketRequest{Req: reqStr, URL: r.URL.String()}
 
-	remoteConn.WriteJSON(reqRemote)
+	remoteConn.Socket.WriteJSON(reqRemote)
 
 	var wsRes WebSocketResponse
-	err = remoteConn.ReadJSON(&wsRes)
+	err = remoteConn.Socket.ReadJSON(&wsRes)
 	if err != nil {
 		log.Println("read remote client response error", err)
 	}
