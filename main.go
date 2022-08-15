@@ -66,7 +66,7 @@ func startProxy(port int) {
 		defer close(done)
 
 		c := core.NewClient(proxyServer, port)
-		c.Start()
+		c.Proxy()
 	}()
 	<-done
 

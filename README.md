@@ -1,38 +1,27 @@
 ## Usage
-go run main.go -client -proxyServer https://yourProxyServer.com
+
+### Server side
+1. Fork and clone this repo
+2. Deploy to heroku
+    ```
+    //create app in heroku
+    heroku create
+    //deploy your app to heroku
+    git push heroku main
+    ```
+
+### Client side
+```
+go run main.go -client -proxyServer yourProxyServer.herokuapp.com
+
 go run main.go -client -port 3000
-
-
-## Debug stage
-
-[Data Race Detector](https://go.dev/doc/articles/race_detector)
-```
-go run -race main.go
-
-go run -race main.go -client
-```
-request http://localhost:8080/ through postman
-
-## Development with Heroku locally
-```
-//start server locally
-heroku local -f Procfile.local
-
-//start client locally
-go run main.go -client
 ```
 
-## Deploy to Heroku
+Now your local server is exposed to the internet, you could visit it by http://yourProxyServer.herokuapp.com
 
-```
-heroku login
-//create app in heroku
-heroku create
-//deploy your app to heroku
-git push heroku main
-//open you app in browser
-heroku open
 
-//check logs
-heroku logs --tail
-```
+## Useful docs
+- [Architecture of ggrok](./docs/architecture.md)
+- [How to run this project locally](./docs/run-locally.md)
+- [How to debug concurrent issues](./docs/debug.md)
+- [Useful Heroku command](./docs/heroku-command.md)
