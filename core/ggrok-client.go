@@ -24,7 +24,7 @@ func NewClient(s string, p int) *GGrokClient {
 	return &GGrokClient{RemoteServer: s, ProxyLocalPort: p}
 }
 
-func (ggclient *GGrokClient) Start() {
+func (ggclient *GGrokClient) Proxy() {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
