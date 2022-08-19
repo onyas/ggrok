@@ -8,7 +8,7 @@ Currently, many proxy services are available, such as ngrok and localtunnel. How
 
 ## ggrok introduction
 
-![ggrok-flow](./flow.jpg)
+![ggrok-flow](https://github.com/onyas/ggrok/blob/main/docs/flow.jpg?raw=true)
 
 Ggrok is a proxy application implemented through golang and WebSocket. You can use the Heroku button on the GitHub [repo](https://github.com/onyas/ggrok) to deploy it conveniently, and then you can have a fixed domain name.
 

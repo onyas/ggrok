@@ -8,7 +8,7 @@
 
 ## ggrok简介
 
-![ggrok-flow](./flow.jpg)
+![ggrok-flow](https://github.com/onyas/ggrok/blob/main/docs/flow.jpg?raw=true)
 
 ggrok是通过Golang和WebSocket实现的代理应用，你可以通过Github[仓库](https://github.com/onyas/ggrok)上的Heroku按钮非常方便的部署，然后就可以拥有一个固定的域名了。
 
