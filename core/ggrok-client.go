@@ -104,7 +104,6 @@ func readWebSocketReq(c *websocket.Conn) WebSocketRequest {
 }
 
 // deserialize request
-//TODO: change to config
 func socketToLocalRequest(websocketReq WebSocketRequest, port int) *http.Request {
 	r := bufio.NewReader(bytes.NewReader([]byte(websocketReq.Req)))
 	localRequest, err := http.ReadRequest(r)
