@@ -16,7 +16,7 @@ var config *core.Config
 
 func init() {
 	flag.BoolVar(&client, "client", false, "start client")
-	flag.StringVar(&proxyServer, "proxyServer", "", "provide server address, for example: https://proxy.yourdomain.com")
+	flag.StringVar(&proxyServer, "proxyServer", "", "provide server address, for example: yourProxyServer.yourdomain.com")
 	flag.IntVar(&port, "port", -1, "provide port, for example: 8080")
 	config = core.NewConfig()
 }

@@ -14,10 +14,13 @@ or you can deploy with Heroku with `Deploy To Heroku` button below:
 [![Deploy To Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
 ### Client side
-```
-go run main.go -client -proxyServer yourProxyServer.herokuapp.com
 
-go run main.go -client -port 3000
+Go to the [release page](https://github.com/onyas/ggrok/releases) to download the installation package. After installation, execute the following command:
+
+```
+ggrok -proxyServer yourProxyServer.herokuapp.com
+
+ggrok -port 3000
 ```
 
 Now your local server is exposed to the internet, you can visit it by https://yourProxyServer.herokuapp.com
@@ -29,3 +32,4 @@ Now your local server is exposed to the internet, you can visit it by https://yo
 - [How to run this project locally](./docs/run-locally.md)
 - [How to debug concurrent issues](./docs/debug.md)
 - [Useful Heroku command](./docs/heroku-command.md)
+- [How to publish a new release](./docs/new-release.md)
