@@ -1,3 +1,6 @@
+## Introduction
+![ggrok-flow](https://github.com/onyas/ggrok/blob/main/docs/flow.jpg?raw=true)
+
 ## Usage
 
 ### Server side
